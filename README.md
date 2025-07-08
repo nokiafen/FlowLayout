@@ -135,5 +135,17 @@ mAdapter.setSelectedList(1,3,5,7,8,9);
 flowLayout.getSelectedList();
 ```
 
+```java
+//设置rows limited
+  <com.zhy.view.flowlayout.TagFlowLayout
+        android:id="@+id/id_flowlayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+	    android:padding="20dp"
+        zhy:max_select="-1"
+        zhy:max_colum="5"
+        android:background="@color/black"
+        >
+```
 
 

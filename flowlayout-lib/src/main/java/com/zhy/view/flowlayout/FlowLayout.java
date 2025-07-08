@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.LayoutDirection;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.text.TextUtilsCompat;
@@ -18,7 +19,7 @@ public class FlowLayout extends ViewGroup {
     private static final int LEFT = -1;
     private static final int CENTER = 0;
     private static final int RIGHT = 1;
-
+    private int maxColum= 3;
     protected List<List<View>> mAllViews = new ArrayList<List<View>>();
     protected List<Integer> mLineHeight = new ArrayList<Integer>();
     protected List<Integer> mLineWidth = new ArrayList<Integer>();
@@ -29,6 +30,7 @@ public class FlowLayout extends ViewGroup {
         super(context, attrs, defStyle);
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.TagFlowLayout);
         mGravity = ta.getInt(R.styleable.TagFlowLayout_tag_gravity, LEFT);
+        maxColum = ta.getInt(R.styleable.TagFlowLayout_max_colum, 10);
         int layoutDirection = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault());
         if (layoutDirection == LayoutDirection.RTL) {
             if (mGravity == LEFT) {
@@ -50,6 +52,7 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int cuMeasureLine = 1;
         int sizeWidth = MeasureSpec.getSize(widthMeasureSpec);
         int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         int sizeHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -66,6 +69,7 @@ public class FlowLayout extends ViewGroup {
 
         for (int i = 0; i < cCount; i++) {
             View child = getChildAt(i);
+//          if (cuMeasureLine>maxColum+1) break;
             if (child.getVisibility() == View.GONE) {
                 if (i == cCount - 1) {
                     width = Math.max(lineWidth, width);
@@ -83,9 +87,11 @@ public class FlowLayout extends ViewGroup {
                     + lp.bottomMargin;
 
             if (lineWidth + childWidth > sizeWidth - getPaddingLeft() - getPaddingRight()) {
+                cuMeasureLine++;
+//              if (cuMeasureLine>maxColum+1) break;
                 width = Math.max(width, lineWidth);
                 lineWidth = childWidth;
-                height += lineHeight;
+                if (cuMeasureLine<=maxColum)height += lineHeight;
                 lineHeight = childHeight;
             } else {
                 lineWidth += childWidth;
@@ -96,6 +102,8 @@ public class FlowLayout extends ViewGroup {
                 height += lineHeight;
             }
         }
+        Log.e("width",width+"");
+        Log.e("height",height+"");
         setMeasuredDimension(
                 //
                 modeWidth == MeasureSpec.EXACTLY ? sizeWidth : width + getPaddingLeft() + getPaddingRight(),
@@ -107,6 +115,7 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        int cuLine = 1;
         mAllViews.clear();
         mLineHeight.clear();
         mLineWidth.clear();
@@ -122,6 +131,7 @@ public class FlowLayout extends ViewGroup {
         for (int i = 0; i < cCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() == View.GONE) continue;
+            if (cuLine>maxColum)  break;
             MarginLayoutParams lp = (MarginLayoutParams) child
                     .getLayoutParams();
 
@@ -129,6 +139,8 @@ public class FlowLayout extends ViewGroup {
             int childHeight = child.getMeasuredHeight();
 
             if (childWidth + lineWidth + lp.leftMargin + lp.rightMargin > width - getPaddingLeft() - getPaddingRight()) {
+                cuLine+=1;
+                if (cuLine>maxColum) break;
                 mLineHeight.add(lineHeight);
                 mAllViews.add(lineViews);
                 mLineWidth.add(lineWidth);

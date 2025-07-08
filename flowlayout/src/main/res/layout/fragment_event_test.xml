@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
 	android:padding="20dp"
         zhy:max_select="-1"
+	zhy:max_colum="5"
         >
     </com.zhy.view.flowlayout.TagFlowLayout>
 </LinearLayout>
